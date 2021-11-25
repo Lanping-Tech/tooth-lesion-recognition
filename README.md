@@ -17,3 +17,11 @@ pip install -r requirements.txt
 ```
 python manage.py runserver 0.0.0.0:8000
 ```
+
+then,
+
+```
+http://127.0.0.1:8000/detect/?image-path=图片路径
+```
+
+即可得到识别结果。
