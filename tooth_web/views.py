@@ -6,13 +6,30 @@ import json
 from .detect_step_one import detect as detect_step_one
 from .detect_step_two import detect as detect_step_two
  
-def hello(request):
+def tooth_dectect(request):
     if request.method == 'GET':
         image_path = request.GET.get('image-path')
-        print(image_path)
+        conf_thres = request.GET.get('conf-thres',0.6)
 
         detect_results = detect_step_one(source=image_path)
-        results = detect_step_two(detect_results)
-        json_obj = json.dumps(results, ensure_ascii=False)
+        if len(detect_results) == 0:
+            data = {
+                'status': 'no tooth detect',
+                'results': []
+            }
+            return HttpResponse(json.dumps(data, ensure_ascii=False), content_type='application/json')
 
-        return HttpResponse(json_obj)
+        results = detect_step_two(detect_results,conf_thres=conf_thres)
+
+        if results:
+            data = {
+                'status': 'success',
+                'results': results
+            }
+            return HttpResponse(json.dumps(data, ensure_ascii=False), content_type='application/json')
+        else:
+            data = {
+                'status': 'fail',
+                'results': []
+            }
+            return HttpResponse(json.dumps(data, ensure_ascii=False), content_type='application/json')
