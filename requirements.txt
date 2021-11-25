@@ -3,7 +3,7 @@ django
 # pip install -r requirements.txt
 
 # base ----------------------------------------
-# matplotlib
+matplotlib
 numpy
 opencv-python
 Pillow
