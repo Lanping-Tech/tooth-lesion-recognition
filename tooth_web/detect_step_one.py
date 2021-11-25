@@ -4,6 +4,7 @@ import sys
 import time
 from pathlib import Path
 
+import os
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
@@ -16,11 +17,13 @@ from utils.datasets import LoadImages
 from utils.general import check_img_size, non_max_suppression, scale_coords
 from utils.torch_utils import select_device
 
+import shutil
 
-def detect(weights='yolov5s.pt',  # model.pt path(s)
+
+def detect(weights='models/step_one.pt',  # model.pt path(s)
         source='data/images',  # file/dir/URL/glob, 0 for webcam
         imgsz=640,  # inference size (pixels)
-        conf_thres=0.9,  # confidence threshold
+        conf_thres=0.7,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         device=''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -28,6 +31,10 @@ def detect(weights='yolov5s.pt',  # model.pt path(s)
 
 
     # Initialize
+    tmp_path = './tmp'
+    shutil.rmtree(tmp_path, ignore_errors=True)
+    os.makedirs(tmp_path)
+
     device = select_device(device)
 
     # Load model
@@ -112,11 +119,11 @@ def detect(weights='yolov5s.pt',  # model.pt path(s)
 
                     c = int(cls)  # integer class
                     label = (f'{names[c]} {conf:.2f}')
-                    results.append({'label':label, 'confidence':conf, 'topleft':(int(xyxy[0]), int(xyxy[1])), 'bottomright':(int(xyxy[2]), int(xyxy[3]))})
+                    results.append({'topleft':(int(xyxy[0]), int(xyxy[1])), 'bottomright':(int(xyxy[2]), int(xyxy[3]))})
 
-                    # cv2.imwrite(str(save_dir / p.name).split(".")[0] + "_" + str(index) + ".jpg", im_sub[ int(xyxy[1]):int(xyxy[3]),int(xyxy[0]):int(xyxy[2])])
+                    cv2.imwrite('./tmp/'+ str(index) + ".jpg", im_sub[ int(xyxy[1]):int(xyxy[3]),int(xyxy[0]):int(xyxy[2])])
     return results
 
-results = detect(weights='models/step_one.pt',source='data/1.jpg', imgsz=640, conf_thres=0.9, iou_thres=0.5, max_det=100)
-print(results)
+# results = detect(weights='models/step_one.pt',source='data/1.jpg', imgsz=640, conf_thres=0.7, iou_thres=0.5, max_det=100)
+# print(results)
 

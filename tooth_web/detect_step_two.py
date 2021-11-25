@@ -17,10 +17,10 @@ from utils.general import check_img_size, non_max_suppression, scale_coords
 from utils.torch_utils import select_device
 
 
-def detect(weights='yolov5s.pt',  # model.pt path(s)
-        source='data/images',  # file/dir/URL/glob, 0 for webcam
+def detect(tooth_info, weights='models/step_two.pt',  # model.pt path(s)
+        source='tmp',  # file/dir/URL/glob, 0 for webcam
         imgsz=640,  # inference size (pixels)
-        conf_thres=0.9,  # confidence threshold
+        conf_thres=0.6,  # confidence threshold
         iou_thres=0.45,  # NMS IOU threshold
         max_det=1000,  # maximum detections per image
         device=''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
@@ -111,12 +111,16 @@ def detect(weights='yolov5s.pt',  # model.pt path(s)
 
 
                     c = int(cls)  # integer class
-                    label = (f'{names[c]} {conf:.2f}')
-                    results.append({'label':label, 'confidence':conf, 'topleft':(int(xyxy[0]), int(xyxy[1])), 'bottomright':(int(xyxy[2]), int(xyxy[3]))})
+                    label = names[c]
+                    tooth_index = int(p.split('.')[0].split('/')[-1])
+                    tooth_topleft_x, tooth_topleft_y = tooth_info[tooth_index]['topleft']
+                    results.append({'label':label, 'confidence':float(conf), 'topleft':(int(xyxy[0])+tooth_topleft_x, int(xyxy[1])+tooth_topleft_y), 'bottomright':(int(xyxy[2])+tooth_topleft_x, int(xyxy[3])+tooth_topleft_y)})
 
                     # cv2.imwrite(str(save_dir / p.name).split(".")[0] + "_" + str(index) + ".jpg", im_sub[ int(xyxy[1]):int(xyxy[3]),int(xyxy[0]):int(xyxy[2])])
     return results
 
-results = detect(weights='models/step_one.pt',source='data/1.jpg', imgsz=640, conf_thres=0.9, iou_thres=0.5, max_det=100)
-print(results)
+
+# tooth_info = [{'topleft': (1997, 1855), 'bottomright': (2097, 1982)}, {'topleft': (2279, 1742), 'bottomright': (2383, 1835)}, {'topleft': (1439, 1766), 'bottomright': (1603, 1888)}, {'topleft': (2134, 1722), 'bottomright': (2199, 1809)}, {'topleft': (2134, 1723), 'bottomright': (2302, 1813)}, {'topleft': (1391, 1836), 'bottomright': (1476, 1956)}, {'topleft': (1930, 1831), 'bottomright': (2100, 1977)}, {'topleft': (1482, 1877), 'bottomright': (1562, 1963)}, {'topleft': (1350, 1731), 'bottomright': (1438, 1852)}, {'topleft': (1230, 1675), 'bottomright': (1367, 1846)}, {'topleft': (2096, 1804), 'bottomright': (2198, 1940)}, {'topleft': (1800, 1831), 'bottomright': (1930, 1981)}, {'topleft': (1682, 1847), 'bottomright': (1792, 1964)}, {'topleft': (1332, 1840), 'bottomright': (1397, 1925)}, {'topleft': (1809, 1741), 'bottomright': (1958, 1868)}, {'topleft': (1564, 1851), 'bottomright': (1673, 1963)}, {'topleft': (2094, 1788), 'bottomright': (2313, 1942)}, {'topleft': (1998, 1728), 'bottomright': (2147, 1874)}, {'topleft': (1610, 1766), 'bottomright': (1780, 1870)}]
+# results = detect(tooth_info, weights='models/step_two.pt',source='tmp', imgsz=640, conf_thres=0.6, iou_thres=0.5, max_det=100)
+# print(results)
 
